@@ -1,0 +1,74 @@
+[    
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-05-01T00:00:00",
+        "enquiries":"14",
+        "reservations":"2"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-05-15T00:00:00",
+        "enquiries":"14",
+        "reservations":"2"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-05-20T00:00:00",
+        "enquiries":"15",
+        "reservations":"3"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-05-25T00:00:00",
+        "enquiries":"15",
+        "reservations":"4"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-05-31T00:00:00",
+        "enquiries":"9",
+        "reservations":"3"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-06-18T00:00:00",
+        "enquiries":"12",
+        "reservations":"2"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-06-20T00:00:00",
+        "enquiries":"19",
+        "reservations":"1"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-06-22T00:00:00",
+        "enquiries":"17",
+        "reservations":"3"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-06-26T00:00:00",
+        "enquiries":"20",
+        "reservations":"4"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-06-27T00:00:00",
+        "enquiries":"7",
+        "reservations":"2"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-06-28T00:00:00",
+        "enquiries":"9",
+        "reservations":"3"
+    },
+    {   
+        "resortName":"Resort 1",
+        "date":"2023-06-30T00:00:00",
+        "enquiries":"7",
+        "reservations":"2"
+    }
+]

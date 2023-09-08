@@ -1,0 +1,64 @@
+
+     [
+        {
+            "resortName":"Hotel 2",
+            "city":"Los Angeles",
+            "state":"California",
+            "country": "US",
+            "title":"Recommended",
+            "desc":"I have stayed at dozen of hotels in (L). This was on the top of the list of best stays/experiences ever. Staff was very hospitable and there for every need of mine. Thank you so much.",
+            "cusName": "John Doe",
+            "cusCity": "New York",
+            "cusState":"New York",
+            "cusCountry":"US",
+            "source":"google",
+            "ranking":"3",
+            "upVote":"5",
+            "date": "2023-04-22T00:00:00"
+        },
+        {
+            "resortName":"Hotel 2",
+            "city":"Los Angeles",
+            "state":"California",
+            "country": "US",
+            "title":"Great hotel to stay in",
+            "desc":"Love the charm of this hotel. Does not give you the routine chain hotel vibe at all. While I did not get there in time to eat at restaurant, have heard amazing reviews on the restaurant.",
+            "source":"goibibo",
+            "ranking":"2",
+            "upVote":"2",
+            "date": "2021-12-02T00:00:00"
+        },
+        {
+            "resortName":"Hotel 2",
+            "city":"Los Angeles",
+            "state":"California",
+            "country": "US",
+            "title":"Terrible hotel to stay in",
+            "desc":"The condition of the rooms were very bad. Bed sheets, linens were dirty.Toilet was horrible. Ambience was very bad.Could not stay a single night but paid Rs, 1900/ advance whice was not repaid. Overall a horrible experience for two hours.",
+            "cusName": "Jimmy",
+            "cusCity": "Delhi",
+            "cusState":"Delhi",
+            "cusCountry":"India",
+            "source":"tripadvisor",
+            "ranking":"1",
+            "upVote":"0",
+            "date": "2020-05-02T00:00:00"
+        },
+        {
+            "resortName":"Hotel 2",
+            "city":"Los Angeles",
+            "state":"California",
+            "country": "US",
+            "title":"Horrible experience from staff",
+            "desc":"First the lady that checks you in has a very bad attitude and is very rude, now the room was disgusting it was roached infested whoever is supposed to clean there doesn't care they step on the roaches and leaves them there it was very dirty I wish I could upload the pictures I took and the videos, I couldn't even sleep there I called the front desk and told them the lady said if you don't like it leave I said yea I will just give me my money back she laughed and hung up I'll never come back here again!!",
+            "cusName": "Jimmy",
+            "cusCity": "Delhi",
+            "cusState":"Delhi",
+            "cusCountry":"India",
+            "source":"tripadvisor",
+            "ranking":"1",
+            "upVote":"0",
+            "date": "2020-10-02T00:00:00"
+        }
+    ]
+

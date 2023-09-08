@@ -1,0 +1,20 @@
+
+     [
+        {
+            "resortName":"Resort 1",
+            "city":"Kolkata",
+            "state":"West Bengal",
+            "country": "India",
+            "title":"Good resort to stay in",
+            "desc":"The foyer and public places are splendid but the rooms are a little tired nowadays. The service is excellent. The food choices are better than most of the other hotels we stayed in but still mainly North Indian. Fresh fruit was available in the room but basic. In a country where fresh fruit is in abundance I would have liked some exotic fruit in the restaurant. The pool area had ample sunbeds.",
+            "cusName": "John Doe",
+            "cusCity": "New York",
+            "cusState":"New York",
+            "cusCountry":"US",
+            "source":"Google",
+            "ranking":"4",
+            "upVote":"5",
+            "date": "28-06-2023"
+        }
+    ]
+

@@ -1,0 +1,47 @@
+{
+	"name": "cfar-server",
+	"version": "1.0.0",
+	"description": "Server for CFAR",
+	"main": "index.js",
+	"scripts": {
+		"start": "nodemon index.js",
+		"dev": "set NODE_ENV=development&& nodemon index.js",
+		"test": "set NODE_ENV=test&& nodemon index.js",
+		"prod": "set NODE_ENV=production&& nodemon index.js",
+		"heroku-up": "heroku login && git push heroku master && heroku open",
+		"heroku-up-new": "heroku login && heroku create && git push heroku master && heroku open"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/200SuccessCogni/CFAR-Server.git"
+	},
+	"keywords": [
+		"CFAR",
+		"Thinkcept",
+		"2023",
+		"Cognizant"
+	],
+	"author": "200 success",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/200SuccessCogni/CFAR-Server/issues"
+	},
+	"homepage": "https://github.com/200SuccessCogni/CFAR-Server#readme",
+	"dependencies": {
+		"@google-cloud/language": "^5.3.0",
+		"axios": "^1.4.0",
+		"body-parser": "^1.20.2",
+		"cors": "^2.8.5",
+		"dotenv": "^16.3.1",
+		"express": "^4.18.2",
+		"joi": "^17.9.2",
+		"jsonwebtoken": "^9.0.0",
+		"mongoose": "^7.3.0",
+		"mongoose-unique-validator": "^4.0.0",
+		"node-cron": "^3.0.2",
+		"node-pushnotifications": "^2.1.0",
+		"nodemon": "^2.0.22",
+		"openai": "^3.3.0",
+		"save": "^2.9.0"
+	}
+}
