@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const reviewController = require("../controllers/reviews/getAnalysedReviews");
 const insightAnalyticsController = require('../controllers/insightAnalytics/getInsightAnalytics');
+const genAiController = require("../controllers/reviews/fetchReview");
 // const verifyLogin = require("../controllers/auth");
 // const sentimentController = require('../controllers/sentimentAnalyzer')
 
@@ -10,6 +11,7 @@ const insightAnalyticsController = require('../controllers/insightAnalytics/getI
 //                                  reviewController.sentimentAnalysis,reviewController.saveProcessedReview],reviewController.fetchEntityAnalysis );
 router.get("/review/getall",reviewController.getReviews);
 router.get("/review/getinsightAnalytics",insightAnalyticsController.fetchInsightAnalytics);
+router.post("/review/sentimentGenAI",genAiController.genAiAnalysis);
 // router.get("/review/reviewStats",verifyLogin.verifyToken, reviewController.fetchReviewStats);
 // router.get("/review/reviewRecommendations",verifyLogin.verifyToken, reviewController.fetchRecommendations);
 // router.put("/review/updateReview",verifyLogin.verifyToken, reviewController.updateReviewById);

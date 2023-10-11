@@ -5,7 +5,7 @@ const genRecommendationController = require("../controllers/generativeText/recom
 const genReplyController = require("../controllers/generativeText/response");
 
 // Api to generate recommendations and responses to reviews
-router.post("/gen/recommend",[verifyTokenController.verifyToken,genRecommendationController.generateReviewRecommendation]);
-router.post("/gen/reply",[verifyTokenController.verifyToken,genReplyController.generateReviewReply]);
+router.post("/gen/recommend",genRecommendationController.generateReviewRecommendation);
+router.post("/gen/reply",genReplyController.generateReviewReply);
 
 module.exports = router;
