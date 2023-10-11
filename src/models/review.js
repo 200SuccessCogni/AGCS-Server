@@ -2,21 +2,41 @@ const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator');
 
 const reviewSchema = mongoose.Schema({
-    userId:{
+    businessId:{
         type:mongoose.Schema.Types.ObjectId, 
-        required:[true,'User id is required']
+        required:[true,'Business id is required']
     },
-    resortId:{
+    locationId:{
         type:mongoose.Schema.Types.ObjectId, 
-        required:[true,'Resort id is required']
+        required:[true,'Location id is required']
     },
-    resortName:{
+    sourceReviewId:{
         type: String,
-        required: [true, 'Resort Id is required']
+        required: [false]
+    },
+    rating: {
+        type: Number,
+        required: [false]
+    },
+    title: {
+        type: String,
+        required: [false]
+    },
+    desc: {
+        type: String,
+        required: [true, 'Description is required']
+    },
+    locationName:{
+        type: String,
+        required: [true, 'Location Name is required']
+    },
+    address:{
+        type: String,
+        required: [true,'Address is required']
     },
     city: {
         type: String,
-        required: [true, 'City is required'],
+        required: [false],
     },
     state: {
         type: String,
@@ -24,39 +44,15 @@ const reviewSchema = mongoose.Schema({
     },
     country: {
         type: String,
-        required: [true, 'Country is required'],
-    },
-    title: {
-        type: String,
-        required: [true, 'Title is required']
-    },
-    desc: {
-        type: String,
-        required: [true, 'Description is required']
-    },
-    cusName:{
-        type: String,
-        required: [false]
-    },
-    cusCity:{
-        type: String,
-        required: [false]
-    },
-    cusState:{
-        type: String,
-        required: [false]
-    },
-    cusCountry:{
-        type: String,
-        required: [false]
+        required: [false],
     },
     source: {
         type: String,
         required: [true, 'Source is required']
     },
-    rating: {
-        type: Number,
-        required: [false]
+    date:{
+        type: String,
+        required: [true,'Date is required']
     },
     upVote: {
         type: Number,
@@ -65,7 +61,7 @@ const reviewSchema = mongoose.Schema({
     isSeen:{
         type: Boolean,
         default: false,
-        required: [true,'isSeen is required']
+        required: [false]
     },
     isActioned: {
         type: Boolean,
@@ -86,25 +82,41 @@ const reviewSchema = mongoose.Schema({
     },
     category:{
         type: String,
-        required: [true,'Sentiment magnitude is required']
+        required: [false]
     },
-    date:{
+    cusName:{
         type: String,
-        required: [true,'Date is required']
+        required: [false]
+    },
+    cusCity:{
+        type: String,
+        required: [false]
+    },
+    cusState:{
+        type: String,
+        required: [false]
+    },
+    cusCountry:{
+        type: String,
+        required: [false]
+    },
+    useNlp:{
+        type:Boolean,
+        required:[true,'useNlp is required']
     }
 },{timestamps:true});
 
 
-// Creating unique compund index for resortName and location. This will ensure that for a resort from a city wont have the same text as description. But this compound index 
-// will let documents to be added for the same resort from the same city with a different text or the same resort from a different city with the same text as description. Basically
-// the compound index will prevent adding records which have similar values in the three fiels of resortName, city and description.
-reviewSchema.index({ resortId: 1, desc: 1 },{unique:true});
-reviewSchema.index({ userId:1,resortId: 1});
+// Creating unique compund index for businessId, locationId and source review id. This will ensure that a brand won't have duplicate reviews.
+
+reviewSchema.index({ businessId: 1, locationId: 1, address:1, desc:1 },{unique:true});
+reviewSchema.index({ businessId: 1});
+reviewSchema.index({ locationId: 1});
+reviewSchema.index({ category:1});
 reviewSchema.index({ date:1});
 reviewSchema.index({ rating:1});
 reviewSchema.index({ source:1});
-reviewSchema.index({ category:1});
 reviewSchema.plugin(uniqueValidator, { message: '{PATH} already exists' });
-const reviewModel = mongoose.model('review', reviewSchema, 'REVIEW')
+const reviewModel = mongoose.model('review', reviewSchema, 'REVIEWS')
 
 module.exports = reviewModel;
