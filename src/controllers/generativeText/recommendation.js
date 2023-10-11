@@ -20,7 +20,7 @@ const generateReviewRecommendation = async(req,res,next)=>{
         let errMsg = 'Invalid content'
         next(errMsg)
     } else {
-        let prompt = `Suggest recommendations to improve the services of the hotel based on the following review. The recommendation should be from an experts point of view.${reviewObj.content}`
+        let prompt = `As a restaurant domain expert, suggest recommendations to improve the services of the hotel based on the following review. The recommendation should be from an experts point of view.${reviewObj.content}`
 
        let recommendation = await genAi.generativeResponse(prompt)
 

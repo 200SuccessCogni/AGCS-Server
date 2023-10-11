@@ -19,7 +19,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     console.log(filter);
 
     let responseObj = {
-        categories : {},
+        categories : [],
         sources: {},
         insights: [],
         analytics: [],
@@ -31,7 +31,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
         {$group:{_id:'$category',count:{$sum:1}}}
     ]).exec().then((doc)=>{
         if(doc){
-            responseObj.categories = {...doc};
+            responseObj.categories = [...doc];
         }
     }).catch((err)=>{
         errMsg = 'Error in fetching review'

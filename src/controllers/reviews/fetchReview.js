@@ -588,8 +588,12 @@ const saveEntities = async(...entities)=>{
 
 
 // Method to perform gen ai based sentiment analysis
-const genAiAnalysis= async(review)=> sentimentAnalysis = await openAi.generativeResponse(openAi)
+const genAiAnalysis= async(req,res,next)=>{
+    let prompt = `Perform Sentiment Analysis on each of the sentences and return a score and magnitude.The response should be in JSON Format \n ${req.desc}`
+    let analysis = await openAi.generativeResponse(prompt)
+    res.send(analysis)
+}
 
 
 
-module.exports = {dailyCronJob}
+module.exports = {dailyCronJob,genAiAnalysis}

@@ -16,6 +16,8 @@ const getReviews = async (req,res,next) => {
         locationId: req.query.locationId?new mongoose.Types.ObjectId(req.query.locationId):'',
     }
     
+    let skip = parseInt(req.query.skip)
+    let limit = parseInt(req.query.skip) + parseInt(req.query.limit)
     // Date filtering;
     if(startDate && endDate){
         filter.date = {
@@ -39,11 +41,13 @@ const getReviews = async (req,res,next) => {
         filter.rating = parseInt(rating)
     }
 
-    console.log(filter);
+    console.log(req.query.skip);
     reviewModel.aggregate([
-        {$match:filter}
+        {$match:filter},
+        // {$skip:skip},
+        // {$limit:limit}
         // {$group:{_id:'$category',count:{$sum:1}}}
-    ]).exec().then((doc)=>{
+    ]).then((doc)=>{
         let response = {
             data: doc,
             code: 0,
@@ -51,6 +55,7 @@ const getReviews = async (req,res,next) => {
         }
         res.send(response)
     }).catch((err)=>{
+        console.log(err)
         errMsg = 'Error in fetching review'
         next(errMsg)
     });
