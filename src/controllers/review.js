@@ -1,7 +1,6 @@
 const Review = require("../models/review");
 // const CronJob = require('cron').CronJob;
-const reviewSource = require('../models/reviewSources');
-const entityDetails = require('../models/entityReport');
+const entityDetails = require('../models/entitySentiment');
 const joi = require('joi');
 const fs = require("fs");
 const nlp = require('../../src/controllers/nlp');

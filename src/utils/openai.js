@@ -7,7 +7,6 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const generativeResponse = async(prompt)=>{
-    console.log(openAIKey);
     
     try {
         // const response = await openai.Completion.create({
@@ -17,14 +16,14 @@ const generativeResponse = async(prompt)=>{
         //   n: 1,
         //   stop: null,
         //   temperature: 0.5,
-        // });
+        // })
 
         const chatCompletion = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
           messages: [{role: "user", content: prompt}],
         });
     
-        console.log(chatCompletion) ;
+        return chatCompletion ;
       } catch (error) {
         console.error(error);
         return error

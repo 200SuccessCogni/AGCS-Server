@@ -2,14 +2,23 @@ const express = require('express');
 const cors = require('cors');
 const { json, urlencoded, text } = require("body-parser");
 const { HOST, PORT, NODE_ENV } = require('./process');
-const verifyToken = require("./src/controllers/auth");
 require("./src/utils/db");
-require("./src/utils/cron");
-
+// const excel = require("./src/utils/excel")
+// require("./src/utils/cron");
+// excel.result();
+const reviewsCronExec = require('./src/controllers/reviews/fetchReview');
+// cronExec.dailyCronJob.start();
+// cronExec.dailyCronJob.stop();
 // Routers
+const businessRouter = require("./src/routes/business");
+const userRouter = require("./src/routes/user");
 const authRouter = require("./src/routes/auth");
+const locationRouter = require("./src/routes/location");
+const genTextRouter = require("./src/routes/generativeText")
 const reviewRouter = require("./src/routes/review");
-const resortRouter = require("./src/routes/resort");
+// const resortRouter = require("./src/routes/resort");
+
+console.log(process.env.NODE_ENV)
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -21,10 +30,16 @@ app.use(json());
 app.use(urlencoded({ extended: true }));
 
 // Define all routes
+// Business route is not publicly exposed
+app.use('/api/v1.0', businessRouter); 
+// User route is exposed only for admin of the business
+app.use('/api/v1.0', userRouter);
+// The below routes are exposed to the app
 app.use('/api/v1.0', authRouter);
+app.use('/api/v1.0', locationRouter);
 app.use('/api/v1.0', reviewRouter)
-app.use('/api/v1.0', resortRouter)
-// app.use('/api/v1.0',verifyToken.verifyToken, reviewRouter);
+app.use('/api/v1.0', genTextRouter);
+// app.use('/api/v1.0', resortRouter)
 
 app.get('/', function (req, res) {
     res.send('Hello from server ❤️‍🔥');
@@ -46,7 +61,7 @@ app.use(function (err, req, res, next) {
 const start = async () => {
     try {
         app.listen(PORT, () => {
-            console.log(`Server running on port: ${PORT}`);
+            console.log(`Server running on ${HOST} port: ${PORT}`);
         });
     } catch (e) {
         console.error(e);
