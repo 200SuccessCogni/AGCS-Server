@@ -6,8 +6,10 @@ const addBusiness = async (req, res, next) => {
 
     let businessObj = {
         name: reqPayload.name ? reqPayload.name : '',
-        originCountry: reqPayload.originCountry ? reqPayload.originCountry : '',
         address: reqPayload.address ? reqPayload.address : '',
+        city: reqPayload.city ? reqPayload.city : '',
+        state: reqPayload.state ? reqPayload.state : '',
+        originCountry: reqPayload.originCountry ? reqPayload.originCountry : '',
         uid: reqPayload.uid ? reqPayload.uid : '',
         useNlp: reqPayload.useNlp? reqPayload.useNlp:'',
         domain: reqPayload.domain ? reqPayload.domain : '',
@@ -16,8 +18,10 @@ const addBusiness = async (req, res, next) => {
 
     const schema = joi.object({
         name: joi.string().required(),
-        originCountry: joi.string().required(),
         address: joi.string().required(),
+        city: joi.string().required(),
+        state: joi.string().required(),
+        originCountry: joi.string().required(),
         uid: joi.string().required(),
         useNlp: joi.boolean().required(),
         domain: joi.string().allow(''),

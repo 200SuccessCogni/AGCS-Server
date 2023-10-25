@@ -64,7 +64,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
             avgScore:{$avg:'$entityScores.sentimentScore'},
             avgMagnitude:{$avg:'$entityScores.sentimentMagnitude'}
         }},
-        {$match:{_id:{$in:insightParams}}}
+        // {$match:{_id:{$in:insightParams}}}
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.insights = [...doc];
@@ -80,7 +80,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     await entityModel.aggregate([
         {$match:filter},
         {$unwind: '$entityScores'},
-        {$match:{'entityScores.entityName':{$in:insightParams}}},
+        // {$match:{'entityScores.entityName':{$in:insightParams}}},
         {$setWindowFields:{
             partitionBy:'$entityScores.entityName',
             sortBy: {'entityScores.date':1},

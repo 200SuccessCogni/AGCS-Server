@@ -9,11 +9,25 @@ const getReviews = async (req,res,next) => {
     let source = req.query.source?req.query.source.split(','):'';
     let category = req.query.category?req.query.category.split(','):'';
     let rating = req.query.rating? req.query.rating:''
-    console.log(category)
 
     let filter = {
         businessId: req.query.businessId?new mongoose.Types.ObjectId(req.query.businessId):'',
         locationId: req.query.locationId?new mongoose.Types.ObjectId(req.query.locationId):'',
+    }
+
+    let response = {
+        data: '',
+        code: 0,
+        msg: ''
+    }
+
+    if(!businessId || !locationId){
+        response = {
+            data: '',
+            code: 1,
+            msg: 'Missing query param'
+        }
+        res.send(response)
     }
     
     let skip = parseInt(req.query.skip)
@@ -48,7 +62,7 @@ const getReviews = async (req,res,next) => {
         // {$limit:limit}
         // {$group:{_id:'$category',count:{$sum:1}}}
     ]).then((doc)=>{
-        let response = {
+        response = {
             data: doc,
             code: 0,
             msg: 'Success'

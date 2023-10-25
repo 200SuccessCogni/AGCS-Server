@@ -18,14 +18,25 @@ const generateReviewReply = async(req,res,next)=>{
         let errMsg = 'Invalid content'
         next(errMsg)
     } else {
-        let prompt = `Suggest a suitable response for the following review. The response should be empathetic and professional. Also suggest a suitable compensation for this customer.${reviewObj.content}`
+    //    let prompt = `As a business representative suggest a suitable response for the following review. 
+    //                 - The response should be empathetic and professional. 
+    //                 - Also suggest a suitable compensation for this customer if the review has .${reviewObj.content}`
+          let prompt = `Act like a customer satisfaction business representative for the restaurant,
+           in charge of their social media presence.    
+            - Your job is to go through the review comments and  draft a suitable response.    
+            - Your response should not be more than 100 words strictly.   
+            - Your response should be in an empathetic, spartan, conversational, yet professional tone.   
+            - If you see any grievances, then feel free to suggest a suitable non-monetary compensation for the customer.   
+            - DO NOT respond with broken sentences or json.   
+            - Respond with free-flowing text.
+  
+            Now with the above instructions generate a suitable response for the following paragraph
+            ${reviewObj.content}`
 
        let reply = await genAi.generativeResponse(prompt)
 
-       let parsedReply = reply.data.choices[0].message.content 
-
        let response = {
-            data: parsedReply,
+            data: reply,
             code: 0,
             msg: 'Success'
         }

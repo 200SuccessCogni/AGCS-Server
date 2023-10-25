@@ -3,12 +3,7 @@ const cors = require('cors');
 const { json, urlencoded, text } = require("body-parser");
 const { HOST, PORT, NODE_ENV } = require('./process');
 require("./src/utils/db");
-// const excel = require("./src/utils/excel")
-// require("./src/utils/cron");
-// excel.result();
-const reviewsCronExec = require('./src/controllers/reviews/fetchReview');
-// cronExec.dailyCronJob.start();
-// cronExec.dailyCronJob.stop();
+
 // Routers
 const businessRouter = require("./src/routes/business");
 const userRouter = require("./src/routes/user");
@@ -16,7 +11,6 @@ const authRouter = require("./src/routes/auth");
 const locationRouter = require("./src/routes/location");
 const genTextRouter = require("./src/routes/generativeText")
 const reviewRouter = require("./src/routes/review");
-// const resortRouter = require("./src/routes/resort");
 
 console.log(process.env.NODE_ENV)
 
@@ -39,7 +33,6 @@ app.use('/api/v1.0', authRouter);
 app.use('/api/v1.0', locationRouter);
 app.use('/api/v1.0', reviewRouter)
 app.use('/api/v1.0', genTextRouter);
-// app.use('/api/v1.0', resortRouter)
 
 app.get('/', function (req, res) {
     res.send('Hello from server ❤️‍🔥');
@@ -69,8 +62,4 @@ const start = async () => {
 };
 
 start();
-
-// app.listen(PORT, function () {
-//     console.log(`Server running on ${HOST}:${PORT}`)
-// })
 
