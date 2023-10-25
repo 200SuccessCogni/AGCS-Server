@@ -26,6 +26,11 @@ const reviewSchema = mongoose.Schema({
         type: String,
         required: [true, 'Description is required']
     },
+    desc_embedding:{
+        type: Array,
+        required: [false],
+        default: []
+    },
     locationName:{
         type: String,
         required: [true, 'Location Name is required']

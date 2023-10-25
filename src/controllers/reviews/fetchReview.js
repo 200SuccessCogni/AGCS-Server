@@ -10,7 +10,7 @@ const openAi = require('../../utils/openai');
 
 
 // Cron job to perform sentiment analysis every night
-const dailyCronJob = cron.schedule('50 46 11 * * *',()=>{
+const dailyCronJob = cron.schedule('50 38 02 * * *',()=>{
     fetchLocations();
 },{
     scheduled:true,
@@ -20,9 +20,11 @@ const dailyCronJob = cron.schedule('50 46 11 * * *',()=>{
 
 // Fetch all locations from database. For now the application will support only local source. For fetching reviews from third party
 // applications a source schema has to be created and that document will be used instead of the locations document to fetch reviews
-const fetchLocations = async(req,res,next) =>{
+const fetchLocations = async() =>{
 
-    locationModel.find({})
+    let filter = "65227ab4d7a294d9ee6f18db"
+
+    locationModel.findById(filter)
             .populate({path:'businessId', model:businessModel})
             .then((doc)=>{
                 if(doc){
@@ -48,8 +50,6 @@ const fetchLocations = async(req,res,next) =>{
                 }
             })
 }
-
-
 
 // For the time being we are consuming the services one after the other. Coomunication b/w services will be replaced by docker and Rabbitmq
 
@@ -242,25 +242,36 @@ const sentimentAnalysisSeggregator = async(...reviews)=>{
         // if(rev.useNlp == true){
             return {...rev,method: sentimentAnalyzer} 
         // }else{
-            return {...rev,method: genAiAnalysis} 
+        //     return {...rev,method: llmSentimentAnalyzer} 
         // }
     })
 
-    let analyzedReviewsArr = []
+    let nlpAnalyzedReviewsArr = []
 
     let analyzedReviews = await Promise.allSettled(allReviewsAnalyzer.map(rev=>rev.method(rev))).then((res)=>{
         res.forEach(re=>{
             if(re.status == "fulfilled"){
-                analyzedReviewsArr.push(re.value)
+                // if(re.value.useNlp == true){
+                    nlpAnalyzedReviewsArr.push(re.value)
+                // }else{
+                //     llmAnalyzedReviewsArr.push(re.value)
+                // }
             }
         })
 
-        return analyzedReviewsArr
+        return nlpAnalyzedReviewsArr
     }).then((...analyzedReviewsArr)=>{
-        // Saving the reviews after sentiment analysis and categorization
-        saveProcessedReview(...analyzedReviewsArr[0])
-        // Performing entity sentiment analysis
-        entitySentimentSeggregator(...analyzedReviewsArr[0])
+        console.log(analyzedReviewsArr[0])
+        if(analyzedReviewsArr[0].length>0){
+            // Saving the reviews after sentiment analysis and categorization
+            saveProcessedReview(...analyzedReviewsArr[0])
+            // Performing entity sentiment analysis
+            entitySentimentSeggregator(...analyzedReviewsArr[0])
+        }else{
+            console.log('No reviews to save')
+        }
+    }).catch((err)=>{
+        console.log('Reviews not saved',err)
     })
 }
 
@@ -478,15 +489,15 @@ const entitySentimentAnalyzer = async(review)=>{
 // Middleware for saving entitysentiment analysis. It expects an array of objects
 const saveEntities = async(...entities)=>{
 
-    let resortReviews =  [...entities];
+    let locationReviews =  [...entities];
     let entitySentimentArr = [];
     let entityErrArr = [];
     let entityArr = [];
-    for(i=0;i<resortReviews.length;i++){
+    for(i=0;i<locationReviews.length;i++){
 
     let entityObjArr = [];
 
-    let entityDetails = [...resortReviews[i].entities]
+    let entityDetails = [...locationReviews[i].entities]
 
     entityDetails.forEach((entity)=>{
         // let sentence = entity.sentence? entity.sentence: '';
@@ -500,18 +511,18 @@ const saveEntities = async(...entities)=>{
             sentimentMagnitude: magnitude,
             category: categorizeSentiment(score,magnitude),
             actionItem: categorizeActionItem(score,magnitude),
-            date: resortReviews[i].date?resortReviews[i].date:''
+            date: locationReviews[i].date?locationReviews[i].date:''
         }
 
         entityObjArr.push(entityScore)
     })
 
         let entityObj = {
-            businessId: resortReviews[i].businessId?resortReviews[i].businessId.toString():'',
-            locationId: resortReviews[i].locationId?resortReviews[i].locationId.toString():'',
-            desc: resortReviews[i].desc?resortReviews[i].desc:'',
-            source: resortReviews[i].source?resortReviews[i].source:'',
-            sourceReviewId:resortReviews[i].sourceReviewId?resortReviews[i].sourceReviewId:'',
+            businessId: locationReviews[i].businessId?locationReviews[i].businessId.toString():'',
+            locationId: locationReviews[i].locationId?locationReviews[i].locationId.toString():'',
+            desc: locationReviews[i].desc?locationReviews[i].desc:'',
+            source: locationReviews[i].source?locationReviews[i].source:'',
+            sourceReviewId:locationReviews[i].sourceReviewId?locationReviews[i].sourceReviewId:'',
             entityScores: [...entityObjArr],
         }
 
@@ -587,13 +598,4 @@ const saveEntities = async(...entities)=>{
 }
 
 
-// Method to perform gen ai based sentiment analysis
-const genAiAnalysis= async(req,res,next)=>{
-    let prompt = `Perform Sentiment Analysis on each of the sentences and return a score and magnitude.The response should be in JSON Format \n ${req.desc}`
-    let analysis = await openAi.generativeResponse(prompt)
-    res.send(analysis)
-}
-
-
-
-module.exports = {dailyCronJob,genAiAnalysis}
+module.exports = { dailyCronJob }

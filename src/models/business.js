@@ -6,13 +6,21 @@ const businessSchema = mongoose.Schema({
         type: String,
         required:[true,'Business name is required']
     },
-    originCountry: {
-        type: String,
-        required:[true,'Country of origin is required']
-    },
     address:{
         type: String,
         required:[true,'Address is required']
+    },
+    city:{
+        type: String,
+        required:[true,'City is required']
+    },
+    state:{
+        type: String,
+        required:[true,'State is required']
+    },
+    originCountry:{
+        type: String,
+        required:[true,'Country of origin is required']
     },
     uid:{
         type: String,

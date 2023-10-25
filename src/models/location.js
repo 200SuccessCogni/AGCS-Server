@@ -48,15 +48,14 @@ const locationSchema = mongoose.Schema({
     }]
 },{timestamps:true});
 
-// A business has to assign a unique name and address for every location per city
+// A business has to assign a unique name and address for every unique location
 
-locationSchema.index({businessId:1,locationName:1,city:1,address:1},{unique:true})
+locationSchema.index({businessId:1,locationName:1,address:1,source:1,accountId:1,sourceLocationId:1},{unique:true})
 locationSchema.index({ businessId: 1});
 locationSchema.index({ locationName: 1});
 locationSchema.index({ city: 1});
 locationSchema.index({ address: 1});
 locationSchema.index({ source: 1});
-locationSchema.index({ tagName: 1});
 locationSchema.plugin(uniqueValidator, { message: '{PATH} already exists' });
 const locationModel = mongoose.model('LOCATION', locationSchema, 'LOCATIONS')
 
