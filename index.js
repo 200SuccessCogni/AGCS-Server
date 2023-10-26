@@ -11,6 +11,7 @@ const authRouter = require("./src/routes/auth");
 const locationRouter = require("./src/routes/location");
 const genTextRouter = require("./src/routes/generativeText")
 const reviewRouter = require("./src/routes/review");
+const entityRouter = require("./src/routes/entity");
 
 console.log(process.env.NODE_ENV)
 
@@ -33,6 +34,7 @@ app.use('/api/v1.0', authRouter);
 app.use('/api/v1.0', locationRouter);
 app.use('/api/v1.0', reviewRouter)
 app.use('/api/v1.0', genTextRouter);
+app.use('/api/v1.0',entityRouter);
 
 app.get('/', function (req, res) {
     res.send('Hello from server ❤️‍🔥');
