@@ -10,6 +10,15 @@ const getReviews = async (req,res,next) => {
     let category = req.query.category?req.query.category.split(','):'';
     let rating = req.query.rating? req.query.rating:''
 
+    if(!req.query.businessId || !req.query.locationId ){
+        response = {
+            data: '',
+            code: 1,
+            msg: 'Missing query param'
+        }
+        res.send(response)
+    }
+
     let filter = {
         businessId: req.query.businessId?new mongoose.Types.ObjectId(req.query.businessId):'',
         locationId: req.query.locationId?new mongoose.Types.ObjectId(req.query.locationId):'',
@@ -20,22 +29,18 @@ const getReviews = async (req,res,next) => {
         code: 0,
         msg: ''
     }
-
-    if(!businessId || !locationId){
-        response = {
-            data: '',
-            code: 1,
-            msg: 'Missing query param'
-        }
-        res.send(response)
-    }
     
     let skip = parseInt(req.query.skip)
-    let limit = parseInt(req.query.skip) + parseInt(req.query.limit)
+    let limit = parseInt(req.query.limit)
     // Date filtering;
-    if(startDate && endDate){
+    if(startDate){
         filter.date = {
-            $gte: startDate, 
+            $gte: startDate
+        }
+    }
+
+    if(endDate){
+        filter.date = {
             $lt: endDate
         }
     }
@@ -55,24 +60,33 @@ const getReviews = async (req,res,next) => {
         filter.rating = parseInt(rating)
     }
 
-    console.log(req.query.skip);
-    reviewModel.aggregate([
-        {$match:filter},
-        // {$skip:skip},
-        // {$limit:limit}
-        // {$group:{_id:'$category',count:{$sum:1}}}
-    ]).then((doc)=>{
-        response = {
-            data: doc,
-            code: 0,
-            msg: 'Success'
+    try{
+        let reviews = await reviewModel.aggregate([
+            {$match:filter},
+            // {$skip:skip},
+            // {$limit:limit}
+            // {$group:{_id:'$category',count:{$sum:1}}}
+        ])
+
+        if(reviews){
+            response = {
+                data: reviews,
+                code: 0,
+                msg: 'Success'
+            }
+        }else{
+            response = {
+                data: [],
+                code: 0,
+                msg: 'Success'
+            }
         }
         res.send(response)
-    }).catch((err)=>{
+    }catch(err){
         console.log(err)
         errMsg = 'Error in fetching review'
         next(errMsg)
-    });
+    };
 } 
 
 module.exports = {getReviews}
