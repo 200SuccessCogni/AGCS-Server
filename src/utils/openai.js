@@ -1,14 +1,21 @@
+const {
+  OPEN_AI_API_KEY: apiKey,
+  OPEN_AI_RESOURCE_NAME: resourceName,
+  OPEN_AI_DEPLOYMENT_NAME: deploymentName,
+} = require('../../process');
+
+
 const generativeResponse = async(prompt)=>{
 
   const messages = {"messages":[{"role":"user","content":prompt}]}
 
   try{
-    let genTextCall = await fetch('https://openai-demo-mb-001.openai.azure.com/openai/deployments/openaidemomb001/chat/completions?api-version=2023-05-15',
+    let genTextCall = await fetch(`https://${resourceName}.openai.azure.com/openai/deployments/${deploymentName}/chat/completions?api-version=2023-05-15`,
     {
       method: 'POST',
       headers:{
         'Content-Type':'application/json',
-        'api-key':'da8176df16014be0a4b35214321fe010' 
+        'api-key':apiKey 
       },
       body: JSON.stringify(messages)
     })
