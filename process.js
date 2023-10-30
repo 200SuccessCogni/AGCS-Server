@@ -19,6 +19,7 @@ module.exports = {
     DBPassword: process.env.DBPassword,
     DBCluster: process.env.DBCluster,
     DBName: process.env.DBName,
+    JWT_User : process.env.JWT_User,
     OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
     OPEN_AI_RESOURCE_NAME: process.env.OPEN_AI_RESOURCE_NAME,
     OPEN_AI_DEPLOYMENT_NAME: process.env.OPEN_AI_DEPLOYMENT_NAME
