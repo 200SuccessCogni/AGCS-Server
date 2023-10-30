@@ -1,6 +1,7 @@
 const reviewModel = require("../../models/review");
 const entityModel = require("../../models/entitySentiment");
 const mongoose = require('mongoose');
+const openAi = require('../../utils/openai');
 
 // Middleware to fetch review stats
 const fetchInsightAnalytics = async(req,res,next)=>{
@@ -57,7 +58,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     let insightParams =  ['restaurant','cleanliness','hygeine','food','bathroom','staff','taste','kitchen']
     await entityModel.aggregate([
         {$match:filter},
-        {$unwind: '$entityScores'},
+        {$unwind: '$entityScores'}, 
         {$group:{
             _id:'$entityScores.entityName',
             count:{$sum:1},
@@ -90,11 +91,25 @@ const fetchInsightAnalytics = async(req,res,next)=>{
                 }
             }
         }},
-        {$project:{"date":1,"entityScores":1}}
+        {$project:{"date":1,"entityScores":1,"desc":1}}
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.analytics = [...doc];
-            res.send(responseObj)
+
+            let updatedInsights = responseObj.insights.map(insight=>{
+                let descArr = []
+                responseObj.analytics.forEach(entity=>{
+                    if(insight._id == entity.entityScores.entityName){
+                        let checkDuplicate = descArr.find(desc=>desc == entity.desc)
+                        if(checkDuplicate == undefined)
+                        descArr.push(entity.desc)
+                    }
+                })
+                insight.descArr = [...descArr]
+                return insight
+            })
+
+            // res.send(responseObj)
         }
     }).catch((err)=>{
         console.log(err)
@@ -103,6 +118,9 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     });
 
 
+    let summarizedReviews = await fetchReviewSummaries(...responseObj.insights)
+    responseObj.insights = [...summarizedReviews]
+    res.send(responseObj)
     // let actionableItem = {
     //     businessId: req.businessId?new mongoose.Types.ObjectId(req.businessId):'',
     //     locationId: req.query.locationId?new mongoose.Types.ObjectId(req.query.locationId):'',
@@ -158,6 +176,72 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     //     errMsg = 'Error in fetching review'
     //     next(errMsg)
     // });
+}
+
+const fetchReviewSummaries = async(...insights)=>{
+    let failedAnalysisArr = [];
+
+    let reviewSummaryMethods = insights.map((insight,i)=>{
+        let descArr = [...insight.descArr]
+        let reviewString = ''
+        descArr.forEach((desc,j)=>{
+            reviewString += `Review  ${j+1} - ${desc}`
+        })
+
+        return {
+            method: generateDescSummary,
+            entityName : insight._id,
+            reviewString : reviewString
+        }
+    })
+
+
+    try{
+        let reviewSummaryArr = await Promise.allSettled(reviewSummaryMethods.map(review=>review.method(review.reviewString,review.entityName)))
+        if(Array.isArray(reviewSummaryArr) && reviewSummaryArr.length>0){
+            reviewSummaryArr.forEach((re,k)=>{
+                if(re.status == "fulfilled"){
+                        if('value' in re){
+                            // if('err' in re.value && 'review' in re.value){
+                            //     failedAnalysisArr.push(re.value)
+                            // }else{
+                                insights[k].summary = re.value
+                            // }
+                        }
+                }else if(re.status == "rejected"){
+                    console.log(re)
+                }
+            })
+        }
+        return insights;
+    }catch(err){
+        console.log(err)
+    }
+    
+
+
+
+    return 
+}
+
+
+const generateDescSummary = async(desc,entityName)=>{
+    let prompt = `Analyze the following reviews and generate a summary regarding what the customer is trying to express about ${entityName}.
+    - Keep the analysis within 100 words.
+    - The response should be a string
+    ${desc}`
+
+    try{
+        let analysis = await openAi.generativeResponse(prompt)
+
+        return analysis
+    }catch(err){
+        let errObj = {
+            err: err,
+            review:desc
+        }
+        return errObj
+    }
 }
 
 module.exports = { fetchInsightAnalytics}
