@@ -95,121 +95,13 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.analytics = [...doc];
-
-            let updatedInsights = responseObj.insights.map(insight=>{
-                let descArr = []
-                responseObj.analytics.forEach(entity=>{
-                    if(insight._id == entity.entityScores.entityName){
-                        let checkDuplicate = descArr.find(desc=>desc == entity.desc)
-                        if(checkDuplicate == undefined)
-                        descArr.push(entity.desc)
-                    }
-                })
-                insight.descArr = [...descArr]
-                return insight
-            })
-
-            // res.send(responseObj)
+            res.send(responseObj)
         }
     }).catch((err)=>{
         console.log(err)
         errMsg = 'Error in fetching review'
         next(errMsg)
     });
-
-    if(Array.isArray(responseObj.insights) && responseObj.insights.length>0){
-        let summarizedReviews = await fetchReviewSummaries(...responseObj.insights)
-        responseObj.insights = Array.isArray(summarizedReviews) && summarizedReviews.length>0? [...summarizedReviews]:[]
-    }else{
-        responseObj.insights = []
-    }
-    res.send(responseObj)
-}
-
-const fetchReviewSummaries = async(...insights)=>{
-    let failedAnalysisArr = [];
-
-    let reviewSummaryMethods = insights.map((insight,i)=>{
-        let descArr = [...insight.descArr]
-        let reviewString = ''
-        descArr.forEach((desc,j)=>{
-            reviewString += `Review  ${j+1} - ${desc}`
-        })
-
-        return {
-            method: generateDescSummary,
-            entityName : insight._id,
-            reviewString : reviewString
-        }
-    })
-
-    let batchArr = [];
-    let reviewQueue = [];
-    let summarizedLength = 0
-
-    reviewSummaryMethods.forEach((review,i)=>{
-
-        // Push the last queue of reviews into the batch array
-        if(i == reviewSummaryMethods.length -1){
-            reviewQueue.push(review)            
-            batchArr.push(reviewQueue)
-        }else{
-            // If index is divisible by 25, push queue to batch array and empty queue
-            if(i!=0 && i%10 == 0){
-                batchArr.push(reviewQueue)
-                reviewQueue = [];
-            }
-            // Creating queue of review
-            reviewQueue.push(review)
-        }
-    })
-
-
-    for(j=0;j<batchArr.length;j++){
-        try{
-            let reviewSummaryArr = await Promise.allSettled(batchArr[j].map(review=>review.method(review.reviewString,review.entityName)))
-            if(Array.isArray(reviewSummaryArr) && reviewSummaryArr.length>0){
-                reviewSummaryArr.forEach((re,k)=>{
-                    if(re.status == "fulfilled"){
-                            if('value' in re){
-                                // if('err' in re.value && 'review' in re.value){
-                                //     failedAnalysisArr.push(re.value)
-                                // }else{
-                                    insights[summarizedLength].summary = re.value
-                                    summarizedLength++;
-                                // }
-                            }
-                    }else if(re.status == "rejected"){
-                        console.log(re)
-                    }
-                })
-            }
-            if(summarizedLength == reviewSummaryMethods.length)
-            return insights;
-        }catch(err){
-            console.log(err)
-        }        
-    }    
-}
-
-
-const generateDescSummary = async(desc,entityName)=>{
-    let prompt = `Analyze the following reviews and generate a summary regarding what the customer is trying to express about ${entityName}.
-    - Keep the analysis within 100 words.
-    - The response should be a string
-    ${desc}`
-
-    try{
-        let analysis = await openAi.generativeResponse(prompt)
-
-        return analysis
-    }catch(err){
-        let errObj = {
-            err: err,
-            review:desc
-        }
-        return errObj
-    }
 }
 
 module.exports = { fetchInsightAnalytics}
