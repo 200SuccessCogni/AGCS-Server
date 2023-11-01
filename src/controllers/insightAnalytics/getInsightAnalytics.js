@@ -117,65 +117,13 @@ const fetchInsightAnalytics = async(req,res,next)=>{
         next(errMsg)
     });
 
-
-    let summarizedReviews = await fetchReviewSummaries(...responseObj.insights)
-    responseObj.insights = [...summarizedReviews]
+    if(Array.isArray(responseObj.insights) && responseObj.insights.length>0){
+        let summarizedReviews = await fetchReviewSummaries(...responseObj.insights)
+        responseObj.insights = Array.isArray(summarizedReviews) && summarizedReviews.length>0? [...summarizedReviews]:[]
+    }else{
+        responseObj.insights = []
+    }
     res.send(responseObj)
-    // let actionableItem = {
-    //     businessId: req.businessId?new mongoose.Types.ObjectId(req.businessId):'',
-    //     locationId: req.query.locationId?new mongoose.Types.ObjectId(req.query.locationId):'',
-    //     category:{$in:['negative','review']},
-    //     replyMessage : ""
-    // }
-
-    // // Actionable items
-    // await reviewModel.aggregate([
-    //     {$match:actionableItem},
-    //     {$project:{"category":1,"date":1,"title":1,"desc":1}}
-    // ]).exec().then((doc)=>{
-    //     if(doc){
-    //         responseObj.actionReviews = [...doc];
-    //     }
-    // }).catch((err)=>{
-    //     errMsg = 'Error in fetching review'
-    //     next(errMsg)
-    // });
-
-    // // Mongodb window function
-    // await entityDetails.aggregate([
-    //     {$match:filter},
-    //     {$unwind: '$entityScores'},
-    //     {$match:{'entityScores.entityName':{$in:insightParams},'entityScores.category':{$in:['negative','review']}}},
-    //     {$lookup:{
-    //         from: "REVIEW",
-    //         localField: "reviewId",
-    //         foreignField: "_id",
-    //         as: "review",
-    //     }},
-    //     {$unwind:'$review'},
-    //     {$project:{'reviewId':1,'entityScores.entityName':1,'entityScores.sentimentScore':1,'entityScores.sentimentMagnitude':1,'entityScores.category':1,
-    //                 'source':1,'date':1, 'review.desc':1}}
-    // ]).exec().then((doc)=>{
-    //     if(doc){
-
-    //         console.log(doc);
-
-    //         doc.forEach((insight)=>{
-    //             const actionObj = {
-    //                 actionText : `${insight.entityScores.entityName} has recieved a ${insight.entityScores.category} feedback on ${insight.date} from ${insight.source}`,
-    //                 reviewText : insight.review.desc,
-    //                 source: insight.source,
-
-    //             }
-    //             responseObj.actionableAmeneties.push(actionObj)
-    //         })
-    //         res.send(responseObj)
-    //     }
-    // }).catch((err)=>{
-    //     console.log(err)
-    //     errMsg = 'Error in fetching review'
-    //     next(errMsg)
-    // });
 }
 
 const fetchReviewSummaries = async(...insights)=>{
@@ -195,33 +143,53 @@ const fetchReviewSummaries = async(...insights)=>{
         }
     })
 
+    let batchArr = [];
+    let reviewQueue = [];
+    let summarizedLength = 0
 
-    try{
-        let reviewSummaryArr = await Promise.allSettled(reviewSummaryMethods.map(review=>review.method(review.reviewString,review.entityName)))
-        if(Array.isArray(reviewSummaryArr) && reviewSummaryArr.length>0){
-            reviewSummaryArr.forEach((re,k)=>{
-                if(re.status == "fulfilled"){
-                        if('value' in re){
-                            // if('err' in re.value && 'review' in re.value){
-                            //     failedAnalysisArr.push(re.value)
-                            // }else{
-                                insights[k].summary = re.value
-                            // }
-                        }
-                }else if(re.status == "rejected"){
-                    console.log(re)
-                }
-            })
+    reviewSummaryMethods.forEach((review,i)=>{
+
+        // Push the last queue of reviews into the batch array
+        if(i == reviewSummaryMethods.length -1){
+            reviewQueue.push(review)            
+            batchArr.push(reviewQueue)
+        }else{
+            // If index is divisible by 25, push queue to batch array and empty queue
+            if(i!=0 && i%10 == 0){
+                batchArr.push(reviewQueue)
+                reviewQueue = [];
+            }
+            // Creating queue of review
+            reviewQueue.push(review)
         }
-        return insights;
-    }catch(err){
-        console.log(err)
-    }
-    
+    })
 
 
-
-    return 
+    for(j=0;j<batchArr.length;j++){
+        try{
+            let reviewSummaryArr = await Promise.allSettled(batchArr[j].map(review=>review.method(review.reviewString,review.entityName)))
+            if(Array.isArray(reviewSummaryArr) && reviewSummaryArr.length>0){
+                reviewSummaryArr.forEach((re,k)=>{
+                    if(re.status == "fulfilled"){
+                            if('value' in re){
+                                // if('err' in re.value && 'review' in re.value){
+                                //     failedAnalysisArr.push(re.value)
+                                // }else{
+                                    insights[summarizedLength].summary = re.value
+                                    summarizedLength++;
+                                // }
+                            }
+                    }else if(re.status == "rejected"){
+                        console.log(re)
+                    }
+                })
+            }
+            if(summarizedLength == reviewSummaryMethods.length)
+            return insights;
+        }catch(err){
+            console.log(err)
+        }        
+    }    
 }
 
 
