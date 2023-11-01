@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const reviewController = require("../controllers/reviews/getAnalysedReviews");
 const insightAnalyticsController = require('../controllers/insightAnalytics/getInsightAnalytics');
+const deleteReviewController = require('../controllers/reviews/deleteReviews');
 const verifyLogin = require("../controllers/auth/verifyToken");
 // const sentimentController = require('../controllers/sentimentAnalyzer')
 
@@ -10,13 +11,7 @@ const verifyLogin = require("../controllers/auth/verifyToken");
 //                                  reviewController.sentimentAnalysis,reviewController.saveProcessedReview],reviewController.fetchEntityAnalysis );
 router.get("/review/getall",[verifyLogin.verifyToken,reviewController.getReviews]);
 router.get("/review/getinsightAnalytics",[verifyLogin.verifyToken,insightAnalyticsController.fetchInsightAnalytics]);
-// router.get("/review/reviewStats",verifyLogin.verifyToken, reviewController.fetchReviewStats);
-// router.get("/review/reviewRecommendations",verifyLogin.verifyToken, reviewController.fetchRecommendations);
-// router.put("/review/updateReview",verifyLogin.verifyToken, reviewController.updateReviewById);
-// router.post("/review/fetchEntity",reviewController.entityAnalysis);
-// router.post("/review/genAi",reviewController.recommendation);
-
-// router.post("/review/sentiment",sentimentController.sentimentAnalyze);
-// router.post("/review/entity",sentimentController.entityAnalyze);
+router.post("/review/deleteMulti",deleteReviewController.deleteMultiReview);
+router.post("/review/deleteById",deleteReviewController.deleteReviewById);
 
 module.exports = router;

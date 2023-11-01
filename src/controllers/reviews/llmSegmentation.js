@@ -11,7 +11,7 @@ const openAi = require('../../utils/openai');
 let llmAnalyzedResArr = [];
 
 // Cron job to perform sentiment analysis every night
-const dailyCronJob = cron.schedule('22 12 * * *',()=>{
+const dailyCronJob = cron.schedule('45 27 01 * * *',()=>{
     fetchAllBusiness();
 },{
     scheduled:true,
@@ -162,7 +162,7 @@ const seggregateReviewCall = async(...locations) =>{
 // Middleware for fetching reviews from dummy data
 const fetchReviews = async(locationName) =>{
     console.log('Fetch started')
-    let url = './dummy/business1.json'
+    let url = './dummy/business2.json'
     let jsonRes = [];
 
     console.log(url)

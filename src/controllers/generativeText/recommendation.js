@@ -20,17 +20,12 @@ const generateReviewRecommendation = async(req,res,next)=>{
         let errMsg = 'Invalid content'
         next(errMsg)
     } else {
-        let prompt = `Act like a business representative for the restaurant,
-        in charge of their customer experience improvement.    
-         - Your job is to go through the review comments and  draft a suitable recommendation.
-         - The target audience for the recommendation are the business staff.
-         - The aim of the recommendation should be to improve the services offered.    
-         - Your response should not be more than 100 words strictly.   
-         - Your response should be in an empathetic, spartan, conversational, yet professional tone.   
-         - DO NOT respond with broken sentences or json.   
+        let prompt = `Analyze the following reviews and generate a summary regarding what the customer is trying to express.
+         - Generate the recommendations for improving services based on the review.
+         - The recommendation is for internal use by business.
+         - Your recommendation should not be more than 100 words strictly and should be made using bullet points and in new lines.   
+         - Your recommendation should be in a conversational and professional tone.   
          - Respond with free-flowing text.
-
-         Now with the above instructions generate a suitable response for the following paragraph
         ${reviewObj.content}`
 
        let recommendation = await genAi.generativeResponse(prompt)
