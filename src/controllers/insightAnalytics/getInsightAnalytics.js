@@ -23,7 +23,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
         categories : [],
         sources: {},
         insights: [],
-        analytics: [],
+        // analytics: [],
     }
 
     // Review category count
@@ -69,6 +69,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.insights = [...doc];
+            res.send(responseObj)
         }
     }).catch((err)=>{
         console.log(err)
@@ -78,30 +79,30 @@ const fetchInsightAnalytics = async(req,res,next)=>{
 
     // Review analytics i.e. persisting entity scores
     // Mongodb window function
-    await entityModel.aggregate([
-        {$match:filter},
-        {$unwind: '$entityScores'},
-        // {$match:{'entityScores.entityName':{$in:insightParams}}},
-        {$setWindowFields:{
-            partitionBy:'$entityScores.entityName',
-            sortBy: {'entityScores.date':1},
-            output:{
-                "avgScore":{
-                    $avg:"$entityScores.sentimentScore"
-                }
-            }
-        }},
-        {$project:{"date":1,"entityScores":1,"desc":1}}
-    ]).exec().then((doc)=>{
-        if(doc){
-            responseObj.analytics = [...doc];
-            res.send(responseObj)
-        }
-    }).catch((err)=>{
-        console.log(err)
-        errMsg = 'Error in fetching review'
-        next(errMsg)
-    });
+    // await entityModel.aggregate([
+    //     {$match:filter},
+    //     {$unwind: '$entityScores'},
+    //     // {$match:{'entityScores.entityName':{$in:insightParams}}},
+    //     {$setWindowFields:{
+    //         partitionBy:'$entityScores.entityName',
+    //         sortBy: {'entityScores.date':1},
+    //         output:{
+    //             "avgScore":{
+    //                 $avg:"$entityScores.sentimentScore"
+    //             }
+    //         }
+    //     }},
+    //     {$project:{"date":1,"entityScores":1,"desc":1}}
+    // ]).exec().then((doc)=>{
+    //     if(doc){
+    //         responseObj.analytics = [...doc];
+    //         res.send(responseObj)
+    //     }
+    // }).catch((err)=>{
+    //     console.log(err)
+    //     errMsg = 'Error in fetching review'
+    //     next(errMsg)
+    // });
 }
 
 module.exports = { fetchInsightAnalytics}
