@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const openAi = require('../../utils/openai');
 
 // Middleware to fetch review stats
-const fetchSummarizedInsightAnalytics = async(req,res,next)=>{
+const fetchInsightAnalytics = async(req,res,next)=>{
 
     // let startDate = req.query.startDate?req.query.startDate:'';
     // let endDate = req.query.endDate?req.query.endDate:'';
@@ -20,37 +20,37 @@ const fetchSummarizedInsightAnalytics = async(req,res,next)=>{
     console.log(filter);
 
     let responseObj = {
-        categories : [],
-        sources: {},
+        // categories : [],
+        // sources: {},
         insights: [],
         analytics: [],
     }
 
     // Review category count
-    await reviewModel.aggregate([
-        {$match:filter},
-        {$group:{_id:'$category',count:{$sum:1}}}
-    ]).exec().then((doc)=>{
-        if(doc){
-            responseObj.categories = [...doc];
-        }
-    }).catch((err)=>{
-        errMsg = 'Error in fetching review'
-        next(errMsg)
-    });
+    // await reviewModel.aggregate([
+    //     {$match:filter},
+    //     {$group:{_id:'$category',count:{$sum:1}}}
+    // ]).exec().then((doc)=>{
+    //     if(doc){
+    //         responseObj.categories = [...doc];
+    //     }
+    // }).catch((err)=>{
+    //     errMsg = 'Error in fetching review'
+    //     next(errMsg)
+    // });
 
     // Review source count
-    await reviewModel.aggregate([
-        {$match:filter},
-        {$group:{_id:'$source',count:{$sum:1}}}
-    ]).exec().then((doc)=>{
-        if(doc){
-            responseObj.sources = {...doc};
-        }
-    }).catch((err)=>{
-        errMsg = 'Error in fetching review'
-        next(errMsg)
-    });
+    // await reviewModel.aggregate([
+    //     {$match:filter},
+    //     {$group:{_id:'$source',count:{$sum:1}}}
+    // ]).exec().then((doc)=>{
+    //     if(doc){
+    //         responseObj.sources = {...doc};
+    //     }
+    // }).catch((err)=>{
+    //     errMsg = 'Error in fetching review'
+    //     next(errMsg)
+    // });
 
     // Review insights i.e average score of the entities
     // Mongodb group function used
@@ -109,7 +109,7 @@ const fetchSummarizedInsightAnalytics = async(req,res,next)=>{
                 return insight
             })
 
-            // res.send(responseObj)
+            res.send(responseObj)
         }
     }).catch((err)=>{
         console.log(err)
@@ -117,13 +117,12 @@ const fetchSummarizedInsightAnalytics = async(req,res,next)=>{
         next(errMsg)
     });
 
-    if(Array.isArray(responseObj.insights) && responseObj.insights.length>0){
-        let summarizedReviews = await fetchReviewSummaries(...responseObj.insights)
-        responseObj.insights = Array.isArray(summarizedReviews) && summarizedReviews.length>0? [...summarizedReviews]:[]
-    }else{
-        responseObj.insights = []
-    }
-    res.send(responseObj)
+    // if(Array.isArray(responseObj.insights) && responseObj.insights.length>0){
+    //     let summarizedReviews = await fetchReviewSummaries(...responseObj.insights)
+    //     responseObj.insights = Array.isArray(summarizedReviews) && summarizedReviews.length>0? [...summarizedReviews]:[]
+    // }else{
+    //     responseObj.insights = []
+    // }
 }
 
 const fetchReviewSummaries = async(...insights)=>{
@@ -193,23 +192,42 @@ const fetchReviewSummaries = async(...insights)=>{
 }
 
 
-const generateDescSummary = async(desc,entityName)=>{
+const generateDescSummary = async(req,res,next)=>{
+
+    let descArr = req.body.desc;
+    let entityName = req.body.entityName;
+    let reviewString = ''
+
+    if(Array.isArray(descArr) && descArr.length>0){
+        descArr.forEach((desc,j)=>{
+            reviewString += `Review  ${j+1} - ${desc}`
+        })
+    }else{
+        reviewString += `Review - ${descArr}`
+    }
     let prompt = `Analyze the following reviews and generate a summary regarding what the customer is trying to express about ${entityName}.
     - Keep the analysis within 100 words.
     - The response should be a string
-    ${desc}`
+    ${reviewString}`
 
     try{
         let analysis = await openAi.generativeResponse(prompt)
-
-        return analysis
-    }catch(err){
-        let errObj = {
-            err: err,
-            review:desc
+        if(analysis){
+            let responseObj = {
+                data:analysis,
+                code: 0,
+                message:'Success'
+            }
+            res.send(responseObj)
         }
-        return errObj
+        else{
+            let errMsg = 'Unable to generate summary'
+            next(errMsg)
+        }
+    }catch(err){
+        let errMsg = err
+        next(errMsg) 
     }
 }
 
-module.exports = { fetchSummarizedInsightAnalytics}
+module.exports = { fetchInsightAnalytics,generateDescSummary}

@@ -11,8 +11,9 @@ const verifyLogin = require("../controllers/auth/verifyToken");
 // router.post("/review/saveReviews",[verifyLogin.verifyToken,reviewController.addReviewSources, reviewController.fetchSourceSeggregator,
 //                                  reviewController.sentimentAnalysis,reviewController.saveProcessedReview],reviewController.fetchEntityAnalysis );
 router.get("/review/getall",[verifyLogin.verifyToken,reviewController.getReviews]);
-router.get("/review/getinsightAnalytics",[verifyLogin.verifyToken,insightAnalyticsController.fetchInsightAnalytics]);
-router.get("/review/getSummarizedInsightAnalytics",[verifyLogin.verifyToken,summarizedInsightAnalyticsController.fetchSummarizedInsightAnalytics]);
+router.get("/review/getCategories",[verifyLogin.verifyToken,insightAnalyticsController.fetchInsightAnalytics]);
+router.get("/review/getInsightAnalytics",[verifyLogin.verifyToken,summarizedInsightAnalyticsController.fetchInsightAnalytics]);
+router.post("/review/getInsightSummaries",[verifyLogin.verifyToken,summarizedInsightAnalyticsController.generateDescSummary]);
 router.post("/review/deleteMulti",deleteReviewController.deleteMultiReview);
 router.post("/review/deleteById",deleteReviewController.deleteReviewById);
 
