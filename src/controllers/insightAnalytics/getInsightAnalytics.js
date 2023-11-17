@@ -1,7 +1,6 @@
 const reviewModel = require("../../models/review");
 const entityModel = require("../../models/entitySentiment");
 const mongoose = require('mongoose');
-const openAi = require('../../utils/openai');
 
 // Middleware to fetch review stats
 const fetchInsightAnalytics = async(req,res,next)=>{
@@ -21,15 +20,30 @@ const fetchInsightAnalytics = async(req,res,next)=>{
 
     let responseObj = {
         categories : [],
+        reviewTimeSeries:[],
         sources: {},
         insights: [],
-        // analytics: [],
+        insightStats: [],
     }
 
-    // Review category count
+    // Review category count and percentage
     await reviewModel.aggregate([
+        // {$match:filter},
+        // {$group:{_id:'$category',count:{$sum:1}}}
         {$match:filter},
-        {$group:{_id:'$category',count:{$sum:1}}}
+        {$facet:{
+            categories:[{$group:{_id:'$category',count:{$sum:1}}}],
+            total:[{$group:{_id:'',total:{$sum:1}}}],
+          }
+        },
+        {$unwind:"$total"},
+        {$unwind:"$categories"},
+        {$addFields:{
+          "categories.percentage":{
+            $multiply:[{$divide:["$categories.count","$total.total"]
+          },100]}
+        }},
+        {$project:{_id:"$categories._id",count:"$categories.count",percentage:{$round : [ "$categories.percentage", 2 ]}}}
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.categories = [...doc];
@@ -38,6 +52,23 @@ const fetchInsightAnalytics = async(req,res,next)=>{
         errMsg = 'Error in fetching review'
         next(errMsg)
     });
+
+    // Review time series
+    await reviewModel.aggregate([
+        // {$match:filter},
+        // {$group:{_id:'$category',count:{$sum:1}}}
+        {$match:filter},
+        {$project:{date:{$dateFromString:{dateString:"$date"}},"sentimentScore":1}},
+        {$sort:{date:1}}
+    ]).exec().then((doc)=>{
+        if(doc){
+            responseObj.reviewTimeSeries = [...doc];
+        }
+    }).catch((err)=>{
+        errMsg = 'Error in fetching review'
+        next(errMsg)
+    });
+
 
     // Review source count
     await reviewModel.aggregate([
@@ -69,7 +100,6 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.insights = [...doc];
-            res.send(responseObj)
         }
     }).catch((err)=>{
         console.log(err)
@@ -77,32 +107,34 @@ const fetchInsightAnalytics = async(req,res,next)=>{
         next(errMsg)
     });
 
-    // Review analytics i.e. persisting entity scores
+    // Review insights percentage data and total count by category
     // Mongodb window function
-    // await entityModel.aggregate([
-    //     {$match:filter},
-    //     {$unwind: '$entityScores'},
-    //     // {$match:{'entityScores.entityName':{$in:insightParams}}},
-    //     {$setWindowFields:{
-    //         partitionBy:'$entityScores.entityName',
-    //         sortBy: {'entityScores.date':1},
-    //         output:{
-    //             "avgScore":{
-    //                 $avg:"$entityScores.sentimentScore"
-    //             }
-    //         }
-    //     }},
-    //     {$project:{"date":1,"entityScores":1,"desc":1}}
-    // ]).exec().then((doc)=>{
-    //     if(doc){
-    //         responseObj.analytics = [...doc];
-    //         res.send(responseObj)
-    //     }
-    // }).catch((err)=>{
-    //     console.log(err)
-    //     errMsg = 'Error in fetching review'
-    //     next(errMsg)
-    // });
+    await entityModel.aggregate([
+        {$match:filter},
+        {$unwind:'$entityScores'},
+        {$facet:{
+            categories:[{$group:{_id:'$entityScores.category',count:{$sum:1}}}],
+            total:[{$group:{_id:'',total:{$sum:1}}}],
+          }
+        },
+        {$unwind:"$total"},
+        {$unwind:"$categories"},
+        {$addFields:{
+          "categories.percentage":{
+            $multiply:[{$divide:["$categories.count","$total.total"]
+          },100]}
+        }},
+        {$project:{_id:"$categories._id",count:"$categories.count",percentage:{$round : [ "$categories.percentage", 2 ]}}}
+    ]).exec().then((doc)=>{
+        if(doc){
+            responseObj.insightStats = [...doc];
+            res.send(responseObj)
+        }
+    }).catch((err)=>{
+        console.log(err)
+        errMsg = 'Error in fetching review'
+        next(errMsg)
+    });
 }
 
 module.exports = { fetchInsightAnalytics}
