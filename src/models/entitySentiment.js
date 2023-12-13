@@ -29,7 +29,7 @@ const entitySentimentSchema = mongoose.Schema({
     entityScores: [{
         sentence:{
             type: String,
-            required: [true, 'Sentence is required']            
+            required: [false]            
         },
         entityName: {
             type: String,
@@ -41,11 +41,11 @@ const entitySentimentSchema = mongoose.Schema({
         },
         sentimentMagnitude:{
             type:Number,
-            required: [true,'Sentiment magnitude is required']
+            required: [false]
         },
         category:{
             type: String,
-            required: [true,'Category is required']
+            required: [false]
         },
         actionItem:{
             type: String,

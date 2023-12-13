@@ -39,6 +39,10 @@ const reviewSchema = mongoose.Schema({
         type: String,
         required: [true,'Address is required']
     },
+    product:{
+        type: String,
+        required: [false]
+    },
     city: {
         type: String,
         required: [false],
