@@ -24,6 +24,10 @@ const getReviews = async (req,res,next) => {
         locationId: req.query.locationId?new mongoose.Types.ObjectId(req.query.locationId):'',
     }
 
+    if(req.query.productId && req.query.productId != 'undefined' && req.query.productId != 'null'){
+        filter['product'] = req.query.productId
+    }
+
     let response = {
         data: '',
         code: 0,

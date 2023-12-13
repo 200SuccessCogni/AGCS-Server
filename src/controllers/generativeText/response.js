@@ -21,7 +21,7 @@ const generateReviewReply = async(req,res,next)=>{
     //    let prompt = `As a business representative suggest a suitable response for the following review. 
     //                 - The response should be empathetic and professional. 
     //                 - Also suggest a suitable compensation for this customer if the review has .${reviewObj.content}`
-          let prompt = `Act like a customer satisfaction business representative for the restaurant,
+          let prompt = `Act like a customer satisfaction business representative for the brand of Kohler,
            in charge of their social media presence.    
             - Your job is to go through the review comments and  draft a suitable response.    
             - Your response should not be more than 100 words strictly.   
