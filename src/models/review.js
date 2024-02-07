@@ -89,6 +89,10 @@ const reviewSchema = mongoose.Schema({
         type: Number,
         required: [true,'Sentiment magnitude is required']
     },
+    theme:{
+        type: String,
+        required: [false]
+    },
     category:{
         type: String,
         required: [false]

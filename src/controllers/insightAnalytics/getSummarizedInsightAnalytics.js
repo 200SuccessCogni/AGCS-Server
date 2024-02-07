@@ -59,17 +59,17 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     // Review insights i.e average score of the entities
     // Mongodb group function used
     // let insightParams =  ['parking','wellness','housekeeping','spa','bathroom','bedroom','room','kitchen','food','bar','restaurant','pool','breakfast','gym','toilet','shower','bed']
-    let insightParams =  ['restaurant','cleanliness','hygeine','food','bathroom','staff','taste','kitchen']
+    let insightParams =  ['yes','no','na','n a','n/a','undefined','not defined','not-defined','none', 'unlikely']
     await entityModel.aggregate([
         {$match:filter},
         {$unwind: '$entityScores'}, 
         {$group:{
-            _id:'$entityScores.entityName',
+            _id:{$toLower:'$entityScores.entityName'},
             count:{$sum:1},
             avgScore:{$avg:'$entityScores.sentimentScore'},
             avgMagnitude:{$avg:'$entityScores.sentimentMagnitude'}
         }},
-        // {$match:{_id:{$in:insightParams}}}
+        {$match:{_id:{$nin:insightParams}}}
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.insights = [...doc];
@@ -199,7 +199,7 @@ const fetchReviewSummaries = async(...insights)=>{
 const generateDescSummary = async(req,res,next)=>{
 
     let descArr = req.body.desc;
-    let entityName = req.body.entityName;
+    let entityName = req.body.insight;
     let reviewString = ''
 
     if(Array.isArray(descArr) && descArr.length>0){
@@ -209,8 +209,10 @@ const generateDescSummary = async(req,res,next)=>{
     }else{
         reviewString += `Review - ${descArr}`
     }
-    let prompt = `Analyze the following reviews and generate a summary regarding what the customer is trying to express about ${entityName}.
-    - Keep the analysis within 100 words.
+    let prompt = `Analyze the following reviews and generate a summary only for ${entityName}.
+    - Strictly avoid generating summary for any entity other than ${entityName}.
+    - Ellaborate on the key highlights about ${entityName} mentioned in the reviews.
+    - Keep the analysis within 200 words.
     - The response should be a string
     ${reviewString}`
 
