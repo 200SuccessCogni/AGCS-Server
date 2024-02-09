@@ -59,7 +59,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
     // Review insights i.e average score of the entities
     // Mongodb group function used
     // let insightParams =  ['parking','wellness','housekeeping','spa','bathroom','bedroom','room','kitchen','food','bar','restaurant','pool','breakfast','gym','toilet','shower','bed']
-    let insightParams =  ['yes','no','na','n a','n/a','undefined','not defined','not-defined','none', 'unlikely']
+    let insightParams =  ['yes','no','na','n a','n/a','undefined','not defined','not-defined','none', 'unlikely','no mention','not mentioned']
     await entityModel.aggregate([
         {$match:filter},
         {$unwind: '$entityScores'}, 

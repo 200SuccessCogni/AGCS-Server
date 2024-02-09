@@ -12,7 +12,7 @@ const nlp = require('../../utils/nlp');
 const openAi = require('../../utils/openai');
 
 // Cron job to perform sentiment analysis every night
-const dailyCronJob = cron.schedule('25 14 * * *',()=>{
+const dailyCronJob = cron.schedule('07 12 * * *',()=>{
     fetchAllBusiness();
 },{
     scheduled:true,

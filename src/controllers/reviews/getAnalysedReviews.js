@@ -72,9 +72,26 @@ const getReviews = async (req,res,next) => {
             // {$group:{_id:'$category',count:{$sum:1}}}
         ])
 
-        if(reviews){
+        let themeUpdate = []
+        if(Array.isArray(reviews) && reviews.length>0){
+            themeUpdate = reviews.map(review=>{
+                let theme =''
+                if(review.theme.toLowerCase().includes('experience') || review.theme == ""){
+                    theme = 'Experience'
+                }else if(review.theme.toLowerCase().includes('complain') || review.theme.toLowerCase().includes('complaint')){
+                    theme = 'Complain'
+                }else if(review.theme.toLowerCase().includes('praise')){
+                    theme = 'Praise'
+                }else if(review.theme.toLowerCase().includes('constructive')){
+                    theme = 'Constructive'
+                }
+                review.theme = theme
+                return {
+                    ...review                    
+                }
+            })
             response = {
-                data: reviews,
+                data: [...themeUpdate],
                 code: 0,
                 msg: 'Success'
             }

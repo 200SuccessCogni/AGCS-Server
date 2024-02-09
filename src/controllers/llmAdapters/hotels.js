@@ -8,7 +8,7 @@ const hotelPrompt = async(review)=>{
     Sentiment: The overall positive, negative, or neutral sentiment expressed towards Marriott's services and facilities. This reflects the satisfaction level of guests.\n
     Sentiment Score: A numerical score representing the sentiment of the review, usually ranging from -1 to +1.\n
     Sentiment Magnitude: A numerical score indicating the intensity of sentiment in the review, usually ranging from 1 to 10.\n
-    Theme: The theme of the review - whether it is a complain, a praise, a constructive feedback or an experience shared by the customer. \n
+    Theme: Refers to the the theme of the review - whether it is a complain, a praise, a constructive feedback or an experience shared by the customer. Strictly return any one out of the four options. \n
     Room Quality: Comments on specific aspects of the hotel rooms, such as comfort, amenities, cleanliness, and views.\n
     Room Quality Score: Numerical score given to the room quality mentioned in the review, usually ranging from -1 to +1.\n
     Room Quality Magnitude: Refers to a numerical score given to the room quality magnitude of the review, usually ranging from 1 to 10. \n
@@ -113,7 +113,7 @@ const hotelPrompt = async(review)=>{
         review['replyMessage'] = '',
         review['sentimentScore'] = score,
         review['sentimentMagnitude'] = magnitude,
-        review['theme'] = typeof formattedResponse.Theme == "string"?formattedResponse.Theme:'',
+        review['theme'] = typeof formattedResponse.Theme == "string"?formattedResponse.Theme:'Experience',
         review['category'] = categorizeSentiment(score,magnitude),
         review['Room_Quality'] = formattedResponse.Room_Quality?formattedResponse.Room_Quality:'',
         review['Room_Quality_Score'] = formattedResponse.Room_Quality_Score?formattedResponse.Room_Quality_Score:'',

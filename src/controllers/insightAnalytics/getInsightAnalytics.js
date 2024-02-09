@@ -24,6 +24,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
 
     let responseObj = {
         categories : [],
+        themes: [],
         reviewTimeSeries:[],
         sources: {},
         insights: [],
@@ -57,12 +58,87 @@ const fetchInsightAnalytics = async(req,res,next)=>{
         next(errMsg)
     });
 
+    // Review theme count and percentage
+    await reviewModel.aggregate([
+        // {$match:filter},
+        // {$group:{_id:'$category',count:{$sum:1}}}
+        {$match:filter},
+        {$facet:{
+            themes:[{$group:{_id:{$toLower:'$theme'},count:{$sum:1}}}],
+            total:[{$group:{_id:'',total:{$sum:1}}}],
+          }
+        },
+        {$unwind:"$total"},
+        {$unwind:"$themes"},
+        {$addFields:{
+          "themes.percentage":{
+            $multiply:[{$divide:["$themes.count","$total.total"]
+          },100]}
+        }},
+        {$project:{_id:"$themes._id",count:"$themes.count",percentage:{$round : [ "$themes.percentage", 2 ]}}}
+    ]).exec().then((doc)=>{
+        if(doc){
+            let themes = [...doc]
+            let experienceObj={
+                _id: 'Experience',
+                count: 0,
+                percentage: 0
+            };
+            let complainsObj = {
+                _id: 'Complain',
+                count: 0,
+                percentage: 0
+            };
+            let praiseObj = {
+                _id: 'Praise',
+                count: 0,
+                percentage: 0
+            };
+            let constructiveFeedbackObj = {
+                _id: 'Constructive',
+                count: 0,
+                percentage: 0
+            };
+
+            if(Array.isArray(themes) && themes.length>0){
+                themes.forEach(theme=>{
+                    if(theme._id.toLowerCase().includes('experience') || theme._id == ""){
+                        experienceObj.count = experienceObj.count+theme.count,
+                        experienceObj.percentage = experienceObj.percentage+theme.percentage
+                    }
+
+                    if(theme._id.toLowerCase().includes('complain') || theme._id.toLowerCase().includes('complaint')){
+                        complainsObj.count= complainsObj.count+theme.count,
+                        complainsObj.percentage = complainsObj.percentage+theme.percentage
+                    }
+
+                    if(theme._id.toLowerCase().includes('praise')){
+                        praiseObj.count= praiseObj.count+theme.count,
+                        praiseObj.percentage = praiseObj.percentage+theme.percentage
+                    }
+
+                    if(theme._id.toLowerCase().includes('constructive')){
+                        constructiveFeedbackObj.count= constructiveFeedbackObj.count+theme.count,
+                        constructiveFeedbackObj.percentage = constructiveFeedbackObj.percentage+theme.percentage
+                    }
+                })
+            }
+
+            let themesArr = [complainsObj,praiseObj,constructiveFeedbackObj,experienceObj]
+
+            responseObj.themes = [...themesArr];
+        }
+    }).catch((err)=>{
+        errMsg = 'Error in fetching review'
+        next(errMsg)
+    });
+
     // Review time series
     await reviewModel.aggregate([
         // {$match:filter},
         // {$group:{_id:'$category',count:{$sum:1}}}
         {$match:filter},
-        {$project:{date:{$dateFromString:{dateString:"$date"}},"sentimentScore":1}},
+        {$project:{date:{$dateFromString:{dateString:"$date"}},"sentimentScore":1,"sentimentMagnitude":1}},
         {$sort:{date:1}}
     ]).exec().then((doc)=>{
         if(doc){
