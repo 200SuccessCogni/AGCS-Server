@@ -138,13 +138,14 @@ const fetchInsightAnalytics = async(req,res,next)=>{
         // {$match:filter},
         // {$group:{_id:'$category',count:{$sum:1}}}
         {$match:filter},
-        {$project:{date:{$dateFromString:{dateString:"$date"}},"sentimentScore":1,"sentimentMagnitude":1}},
+        {$project:{date:{$dateFromString:{dateString:"$date",format:"%m/%d/%YT%H:%M:%S"}},"sentimentScore":1,"sentimentMagnitude":1}},
         {$sort:{date:1}}
     ]).exec().then((doc)=>{
         if(doc){
             responseObj.reviewTimeSeries = [...doc];
         }
     }).catch((err)=>{
+        console.log(err)
         errMsg = 'Error in fetching review'
         next(errMsg)
     });
