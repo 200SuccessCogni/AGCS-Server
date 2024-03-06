@@ -76,13 +76,13 @@ const getReviews = async (req,res,next) => {
         if(Array.isArray(reviews) && reviews.length>0){
             themeUpdate = reviews.map(review=>{
                 let theme =''
-                if(review.theme.toLowerCase().includes('experience') || review.theme == ""){
+                if(review.theme && (review.theme.toLowerCase().includes('experience') || review.theme == "")){
                     theme = 'Experience'
-                }else if(review.theme.toLowerCase().includes('complain') || review.theme.toLowerCase().includes('complaint')){
+                }else if(review.theme && (review.theme.toLowerCase().includes('complain') || review.theme.toLowerCase().includes('complaint'))){
                     theme = 'Complain'
-                }else if(review.theme.toLowerCase().includes('praise')){
+                }else if(review.theme && review.theme.toLowerCase().includes('praise')){
                     theme = 'Praise'
-                }else if(review.theme.toLowerCase().includes('constructive')){
+                }else if(review.theme && review.theme.toLowerCase().includes('constructive')){
                     theme = 'Constructive'
                 }
                 review.theme = theme
