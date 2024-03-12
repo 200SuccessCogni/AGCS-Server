@@ -209,11 +209,23 @@ const generateDescSummary = async(req,res,next)=>{
     }else{
         reviewString += `Review - ${descArr}`
     }
-    let prompt = `Analyze the following reviews and generate a summary only for ${entityName}.
-    - Strictly avoid generating summary for any entity other than ${entityName}.
-    - Ellaborate on the key highlights about ${entityName} mentioned in the reviews.
-    - Keep the analysis within 200 words.
-    - The response should be a string
+    // let prompt = `Analyze the following reviews and generate a summary only for ${entityName}.
+    // - If the review has no mention of the ${entityName}, then do not analyze the review.
+    // - Do not mention the absence of ${entityName} if a review has no mention of the ${entityName}
+    // - Do not mention the review or the review number.
+    // - Strictly avoid generating summary for any entity other than ${entityName}.
+    // - Ellaborate on the key highlights about ${entityName} mentioned in the reviews.
+    // - Keep the analysis within 200 words.
+    // - The response should be a string
+    // ${reviewString}`
+
+    let prompt = `Please generate a summary for the keyword ${entityName} based on the following customer reviews.
+    - Include key insights, sentiments and any notable features highlighted by the reviewer.
+    - The voice of the summary should be passive.
+    - Do not retun the actual reviews.
+    - Keep the analysis within 200 words
+    - Response should be a string.
+    - The reviews are as follows - 
     ${reviewString}`
 
     try{
