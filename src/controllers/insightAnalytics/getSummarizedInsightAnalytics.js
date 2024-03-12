@@ -103,7 +103,7 @@ const fetchInsightAnalytics = async(req,res,next)=>{
             let updatedInsights = responseObj.insights.map(insight=>{
                 let descArr = []
                 responseObj.analytics.forEach(entity=>{
-                    if(insight._id == entity.entityScores.entityName){
+                    if(insight._id.toLowerCase() == entity.entityScores.entityName.toLowerCase()){
                         let checkDuplicate = descArr.find(desc=>desc == entity.desc)
                         if(checkDuplicate == undefined)
                         descArr.push(entity.desc)
@@ -221,7 +221,6 @@ const generateDescSummary = async(req,res,next)=>{
 
     let prompt = `Please generate a summary for the keyword ${entityName} based on the following customer reviews.
     - Include key insights, sentiments and any notable features highlighted by the reviewer.
-    - The voice of the summary should be passive.
     - Do not retun the actual reviews.
     - Keep the analysis within 200 words
     - Response should be a string.
